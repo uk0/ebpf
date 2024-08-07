@@ -14,8 +14,9 @@ import (
 
 	"github.com/cilium/ebpf/btf"
 	"github.com/cilium/ebpf/internal"
+	"github.com/cilium/ebpf/internal/linux"
+	"github.com/cilium/ebpf/internal/sys"
 	"github.com/cilium/ebpf/internal/testutils"
-	"github.com/cilium/ebpf/internal/unix"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -32,7 +33,7 @@ func TestLoadCollectionSpec(t *testing.T) {
 				KeySize:    4,
 				ValueSize:  8,
 				MaxEntries: 1,
-				Flags:      unix.BPF_F_NO_PREALLOC,
+				Flags:      sys.BPF_F_NO_PREALLOC,
 			},
 			"hash_map2": {
 				Name:       "hash_map2",
@@ -486,7 +487,7 @@ func TestStringSection(t *testing.T) {
 		t.Fatal("Read only data maps should be frozen")
 	}
 
-	if strMap.Flags != unix.BPF_F_RDONLY_PROG {
+	if strMap.Flags != sys.BPF_F_RDONLY_PROG {
 		t.Fatal("Read only data maps should have the prog-read-only flag set")
 	}
 
@@ -604,7 +605,7 @@ func TestKconfigKernelVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	v, err := internal.KernelVersion()
+	v, err := linux.KernelVersion()
 	if err != nil {
 		t.Fatalf("getting kernel version: %s", err)
 	}
@@ -1187,22 +1188,22 @@ func TestELFSectionProgramTypes(t *testing.T) {
 		{"fentry/", Tracing, AttachTraceFEntry, 0, ""},
 		{"fmod_ret/", Tracing, AttachModifyReturn, 0, ""},
 		{"fexit/", Tracing, AttachTraceFExit, 0, ""},
-		{"fentry.s/", Tracing, AttachTraceFEntry, unix.BPF_F_SLEEPABLE, ""},
-		{"fmod_ret.s/", Tracing, AttachModifyReturn, unix.BPF_F_SLEEPABLE, ""},
-		{"fexit.s/", Tracing, AttachTraceFExit, unix.BPF_F_SLEEPABLE, ""},
+		{"fentry.s/", Tracing, AttachTraceFEntry, sys.BPF_F_SLEEPABLE, ""},
+		{"fmod_ret.s/", Tracing, AttachModifyReturn, sys.BPF_F_SLEEPABLE, ""},
+		{"fexit.s/", Tracing, AttachTraceFExit, sys.BPF_F_SLEEPABLE, ""},
 		{"freplace/", Extension, AttachNone, 0, ""},
 		{"lsm/foo", LSM, AttachLSMMac, 0, "foo"},
-		{"lsm.s/foo", LSM, AttachLSMMac, unix.BPF_F_SLEEPABLE, "foo"},
+		{"lsm.s/foo", LSM, AttachLSMMac, sys.BPF_F_SLEEPABLE, "foo"},
 		{"iter/bpf_map", Tracing, AttachTraceIter, 0, "bpf_map"},
-		{"iter.s/", Tracing, AttachTraceIter, unix.BPF_F_SLEEPABLE, ""},
+		{"iter.s/", Tracing, AttachTraceIter, sys.BPF_F_SLEEPABLE, ""},
 		// Was missing sleepable.
-		{"syscall", Syscall, AttachNone, unix.BPF_F_SLEEPABLE, ""},
-		{"xdp.frags_devmap/foo", XDP, AttachXDPDevMap, unix.BPF_F_XDP_HAS_FRAGS, "foo"},
+		{"syscall", Syscall, AttachNone, sys.BPF_F_SLEEPABLE, ""},
+		{"xdp.frags_devmap/foo", XDP, AttachXDPDevMap, sys.BPF_F_XDP_HAS_FRAGS, "foo"},
 		{"xdp_devmap/foo", XDP, AttachXDPDevMap, 0, "foo"},
-		{"xdp.frags_cpumap/", XDP, AttachXDPCPUMap, unix.BPF_F_XDP_HAS_FRAGS, ""},
+		{"xdp.frags_cpumap/", XDP, AttachXDPCPUMap, sys.BPF_F_XDP_HAS_FRAGS, ""},
 		{"xdp_cpumap/", XDP, AttachXDPCPUMap, 0, ""},
 		// Used incorrect attach type.
-		{"xdp.frags/foo", XDP, AttachXDP, unix.BPF_F_XDP_HAS_FRAGS, ""},
+		{"xdp.frags/foo", XDP, AttachXDP, sys.BPF_F_XDP_HAS_FRAGS, ""},
 		{"xdp/foo", XDP, AttachNone, 0, ""},
 		{"perf_event", PerfEvent, AttachNone, 0, ""},
 		{"lwt_in", LWTIn, AttachNone, 0, ""},

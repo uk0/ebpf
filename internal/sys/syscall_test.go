@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/cilium/ebpf/internal/testutils/fdtrace"
 	"github.com/cilium/ebpf/internal/unix"
 
 	"github.com/go-quicktest/qt"
@@ -14,8 +15,8 @@ func TestObjName(t *testing.T) {
 	if name[len(name)-1] != 0 {
 		t.Error("NewBPFObjName doesn't null terminate")
 	}
-	if len(name) != unix.BPF_OBJ_NAME_LEN {
-		t.Errorf("Name is %d instead of %d bytes long", len(name), unix.BPF_OBJ_NAME_LEN)
+	if len(name) != BPF_OBJ_NAME_LEN {
+		t.Errorf("Name is %d instead of %d bytes long", len(name), BPF_OBJ_NAME_LEN)
 	}
 }
 
@@ -58,4 +59,8 @@ func TestSyscallError(t *testing.T) {
 	if errors.Is(err, foo) {
 		t.Error("Error is the SyscallError")
 	}
+}
+
+func TestMain(m *testing.M) {
+	fdtrace.TestMain(m)
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/cilium/ebpf/internal"
 	"github.com/cilium/ebpf/internal/sys"
 	"github.com/cilium/ebpf/internal/testutils"
-	"github.com/cilium/ebpf/internal/unix"
 )
 
 func TestMapInfoFromProc(t *testing.T) {
@@ -25,7 +24,7 @@ func TestMapInfoFromProc(t *testing.T) {
 		KeySize:    4,
 		ValueSize:  5,
 		MaxEntries: 2,
-		Flags:      unix.BPF_F_NO_PREALLOC,
+		Flags:      sys.BPF_F_NO_PREALLOC,
 	})
 	testutils.SkipIfNotSupported(t, err)
 	if err != nil {
@@ -55,8 +54,8 @@ func TestMapInfoFromProc(t *testing.T) {
 		t.Error("Expected MaxEntries of 2, got", info.MaxEntries)
 	}
 
-	if info.Flags != unix.BPF_F_NO_PREALLOC {
-		t.Errorf("Expected Flags to be %d, got %d", unix.BPF_F_NO_PREALLOC, info.Flags)
+	if info.Flags != sys.BPF_F_NO_PREALLOC {
+		t.Errorf("Expected Flags to be %d, got %d", sys.BPF_F_NO_PREALLOC, info.Flags)
 	}
 
 	if info.Name != "" && info.Name != "testing" {
@@ -302,7 +301,7 @@ func BenchmarkStats(b *testing.B) {
 func testStats(prog *Program) error {
 	in := internal.EmptyBPFContext
 
-	stats, err := EnableStats(uint32(unix.BPF_STATS_RUN_TIME))
+	stats, err := EnableStats(uint32(sys.BPF_STATS_RUN_TIME))
 	if err != nil {
 		return fmt.Errorf("failed to enable stats: %v", err)
 	}

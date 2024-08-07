@@ -16,6 +16,7 @@ import (
 	"github.com/cilium/ebpf/btf"
 	"github.com/cilium/ebpf/internal"
 	"github.com/cilium/ebpf/internal/kallsyms"
+	"github.com/cilium/ebpf/internal/linux"
 	"github.com/cilium/ebpf/internal/sys"
 	"github.com/cilium/ebpf/internal/sysenc"
 	"github.com/cilium/ebpf/internal/unix"
@@ -253,7 +254,7 @@ func newProgramWithOptions(spec *ProgramSpec, opts ProgramOptions) (*Program, er
 	// Overwrite Kprobe program version if set to zero or the magic version constant.
 	kv := spec.KernelVersion
 	if spec.Type == Kprobe && (kv == 0 || kv == internal.MagicKernelVersion) {
-		v, err := internal.KernelVersion()
+		v, err := linux.KernelVersion()
 		if err != nil {
 			return nil, fmt.Errorf("detecting kernel version: %w", err)
 		}
@@ -590,7 +591,7 @@ func (p *Program) Clone() (*Program, error) {
 // This requires bpffs to be mounted above fileName.
 // See https://docs.cilium.io/en/stable/network/kubernetes/configuration/#mounting-bpffs-with-systemd
 func (p *Program) Pin(fileName string) error {
-	if err := internal.Pin(p.pinnedPath, fileName, p.fd); err != nil {
+	if err := sys.Pin(p.pinnedPath, fileName, p.fd); err != nil {
 		return err
 	}
 	p.pinnedPath = fileName
@@ -603,7 +604,7 @@ func (p *Program) Pin(fileName string) error {
 //
 // Unpinning an unpinned Program returns nil.
 func (p *Program) Unpin() error {
-	if err := internal.Unpin(p.pinnedPath); err != nil {
+	if err := sys.Unpin(p.pinnedPath); err != nil {
 		return err
 	}
 	p.pinnedPath = ""
